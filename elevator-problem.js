@@ -1,50 +1,11 @@
-const elevatorStates = [
-  // State @ t=1
-  `xx.x.x.xDxx
-   xx.x.x.x.xx
-   xx.x.x.x.xx
-   xx.xBx.x.xx
-   xx.x.xCx.xx
-   xxAx.x.x.xx`,
-  // State @ t=2
-  `xx.x.x.x.xx
-   xx.x.x.x.xx
-   xxAx.x.x.xx
-   xx.xBx.x.xx
-   xx.x.xCx.xx
-   xx.x.x.xDxx`,
-  // State @ t=3
-  `xx.x.xCx.xx
-   xx.x.x.x.xx
-   xx.x.x.x.xx
-   xxAxBx.x.xx
-   xx.x.x.x.xx
-   xx.x.x.xDxx`,
-  // State @ t=4
-  `xx.x.xCx.xx
-   xx.x.x.x.xx
-   xx.xBx.xDxx
-   xx.x.x.x.xx
-   xxAx.x.x.xx
-   xx.x.x.x.xx`,
-  // State @ t=5
-  `xx.x.xCx.xx
-   xx.x.x.xDxx
-   xx.x.x.x.xx
-   xx.x.x.x.xx
-   xxAxBx.x.xx
-   xx.x.x.x.xx`,
-];
-
-const startingElevator = "A";
-const finalDestination = "5-5";
-
 function findElevatorPath(elevatorStates, startingElevator, finalDestination) {
   elevatorStates = formatStates(elevatorStates);
-  return findPath(elevatorStates, startingElevator, finalDestination);
+  const result = findPath(elevatorStates, startingElevator, finalDestination);
+
+  return !!result ? result : "NO SUCCESSFUL ROUTE";
 }
 
-// removes white spaces and returns a string array of each elevator state
+// removes white spaces and returns a string array of each elevator state at a given time
 function formatStates(elevatorStates) {
   const formattedStates = [];
 
@@ -67,7 +28,9 @@ function findPath(elevatorStates, startingElevator, finalDestination) {
   let elevatorPath;
 
   const recurse = (elevatorStates, currElevator, time, floor, path) => {
-    if ( (numberOfFloors - +floor) + "-" + (time + 1) === finalDestination) {
+    // multiple base cases for optimizing efficiency once we have found a working path
+    if (elevatorPath) return;
+    if (numberOfFloors - +floor + "-" + (time + 1) === finalDestination) {
       elevatorPath = path;
       return;
     }
@@ -84,8 +47,8 @@ function findPath(elevatorStates, startingElevator, finalDestination) {
       }
     }
 
-    possiblePath.forEach((letter) => {
-      recurse(elevatorStates, letter, time, floor, path + letter);
+    possiblePath.forEach((elevator) => {
+      recurse(elevatorStates, elevator, time, floor, path + elevator);
     });
   };
 
@@ -94,6 +57,7 @@ function findPath(elevatorStates, startingElevator, finalDestination) {
   return elevatorPath;
 }
 
+// Finds what floor index we are on given the current elevator letter
 function findFloor(elevatorState, startingElevator) {
   for (let i = 0; i < elevatorState.length; i++) {
     if (elevatorState[i].includes(startingElevator)) {
@@ -102,4 +66,4 @@ function findFloor(elevatorState, startingElevator) {
   }
 }
 
-console.log ( findElevatorPath(elevatorStates, startingElevator, finalDestination) ); // "AABDD"
+module.exports = { findElevatorPath };
